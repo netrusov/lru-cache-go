@@ -1,5 +1,12 @@
 package lru
 
+/*
+TODO:
+	- support concurrent access
+	- debug weird behavior when there's only one element in the cache
+	- possibly allow `nil` as a cache's head (may fix the bug above), although it will introduce a lot of nil-checks
+*/
+
 type Node[K comparable, V any] struct {
 	Key        K
 	Value      V
@@ -24,7 +31,7 @@ func New[K comparable, V any](size int) (*Cache[K, V], error) {
 	}
 
 	cache := &Cache[K, V]{
-		size: int(size),
+		size: size,
 		dict: make(map[K]*Node[K, V]),
 	}
 
@@ -68,12 +75,16 @@ func (c *Cache[K, V]) move(node *Node[K, V]) {
 }
 
 func (c *Cache[K, V]) evict() {
-	if len(c.dict) == c.size {
+	if c.Len() == c.size {
 		tail := c.head.prev
 
 		c.unlink(tail)
 		delete(c.dict, tail.Key)
 	}
+}
+
+func (c *Cache[K, V]) Len() int {
+	return len(c.dict)
 }
 
 func (c *Cache[K, V]) Add(key K, value V) {
@@ -91,9 +102,7 @@ func (c *Cache[K, V]) Add(key K, value V) {
 }
 
 func (c *Cache[K, V]) Get(key K) (V, bool) {
-	node, ok := c.dict[key]
-
-	if ok {
+	if node, ok := c.dict[key]; ok {
 		c.move(node)
 		return node.Value, true
 	} else {
