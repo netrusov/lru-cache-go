@@ -110,3 +110,18 @@ func (c *Cache[K, V]) Get(key K) (V, bool) {
 		return empty, false
 	}
 }
+
+func (c *Cache[K, V]) Remove(key K) bool {
+	if node, ok := c.dict[key]; ok {
+		if node == c.head {
+			c.head = node.next
+		}
+
+		c.unlink(node)
+		delete(c.dict, node.Key)
+
+		return true
+	} else {
+		return false
+	}
+}
