@@ -24,7 +24,7 @@ func New[K comparable, V any](size int) (*Cache[K, V], error) {
 
 	cache := &Cache[K, V]{
 		size: size,
-		dict: make(map[K]*Node[K, V]),
+		dict: make(map[K]*Node[K, V], size),
 	}
 
 	return cache, nil
