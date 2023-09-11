@@ -8,6 +8,7 @@ type Node[K comparable, V any] struct {
 
 type List[K comparable, V any] struct {
 	head *Node[K, V]
+	len  int
 }
 
 func (l *List[K, V]) insert(node *Node[K, V]) {
@@ -24,11 +25,26 @@ func (l *List[K, V]) insert(node *Node[K, V]) {
 		node.prev.next = node
 		node.next.prev = node
 	}
+
+	l.len++
 }
 
-func (l *List[K, V]) unlink(node *Node[K, V]) {
-	node.prev.next = node.next
-	node.next.prev = node.prev
+func (l *List[K, V]) remove(node *Node[K, V]) {
+	if l.len == 1 {
+		l.head = nil
+	} else {
+		if node == l.head {
+			l.head = node.next
+		}
+
+		node.prev.next = node.next
+		node.next.prev = node.prev
+	}
+
+	node.prev = nil
+	node.next = nil
+
+	l.len--
 }
 
 func (l *List[K, V]) move(node *Node[K, V]) {
@@ -41,7 +57,7 @@ func (l *List[K, V]) move(node *Node[K, V]) {
 		l.head = node
 	} else {
 		// otherwise unlink the node and insert it at the beginning
-		l.unlink(node)
+		l.remove(node)
 		l.insert(node)
 	}
 }

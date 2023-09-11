@@ -3,8 +3,6 @@ package lru
 /*
 TODO:
 	- support concurrent access
-	- debug weird behavior when there's only one element in the cache
-	- possibly allow `nil` as a cache's head (may fix the bug above), although it will introduce a lot of nil-checks
 */
 
 type Cache[K comparable, V any] struct {
@@ -16,11 +14,11 @@ type Cache[K comparable, V any] struct {
 type InvalidCacheSize struct{}
 
 func (*InvalidCacheSize) Error() string {
-	return "Invalid cache size (must be greater than 1)"
+	return "Invalid cache size (must be greater than 0)"
 }
 
 func New[K comparable, V any](size int) (*Cache[K, V], error) {
-	if size <= 1 {
+	if size < 1 {
 		return nil, &InvalidCacheSize{}
 	}
 
@@ -36,7 +34,7 @@ func (c *Cache[K, V]) evict() {
 	if c.Len() == c.size {
 		tail := c.list.head.prev
 
-		c.list.unlink(tail)
+		c.list.remove(tail)
 		delete(c.dict, tail.Key)
 	}
 }
@@ -71,11 +69,7 @@ func (c *Cache[K, V]) Get(key K) (V, bool) {
 
 func (c *Cache[K, V]) Remove(key K) bool {
 	if node, ok := c.dict[key]; ok {
-		if node == c.list.head {
-			c.list.head = node.next
-		}
-
-		c.list.unlink(node)
+		c.list.remove(node)
 		delete(c.dict, node.Key)
 
 		return true
