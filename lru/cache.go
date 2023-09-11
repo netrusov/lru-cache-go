@@ -1,14 +1,17 @@
 package lru
 
+import "sync"
+
 /*
 TODO:
-	- support concurrent access
+	- prove that concurrent access works properly
 */
 
 type Cache[K comparable, V any] struct {
 	size int
 	dict map[K]*Node[K, V]
 	list List[K, V]
+	seal sync.Mutex
 }
 
 type InvalidCacheSize struct{}
@@ -35,6 +38,9 @@ func (c *Cache[K, V]) Len() int {
 }
 
 func (c *Cache[K, V]) Put(key K, value V) {
+	c.seal.Lock()
+	defer c.seal.Unlock()
+
 	if node, ok := c.dict[key]; ok {
 		node.Value = value
 		c.list.move(node)
@@ -55,6 +61,9 @@ func (c *Cache[K, V]) Put(key K, value V) {
 }
 
 func (c *Cache[K, V]) Get(key K) (V, bool) {
+	c.seal.Lock()
+	defer c.seal.Unlock()
+
 	if node, ok := c.dict[key]; ok {
 		c.list.move(node)
 		return node.Value, true
@@ -65,6 +74,9 @@ func (c *Cache[K, V]) Get(key K) (V, bool) {
 }
 
 func (c *Cache[K, V]) Del(key K) bool {
+	c.seal.Lock()
+	defer c.seal.Unlock()
+
 	if node, ok := c.dict[key]; ok {
 		c.list.remove(node)
 		delete(c.dict, node.Key)
