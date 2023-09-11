@@ -43,7 +43,7 @@ func (c *Cache[K, V]) Len() int {
 	return c.list.len
 }
 
-func (c *Cache[K, V]) Add(key K, value V) {
+func (c *Cache[K, V]) Put(key K, value V) {
 	if node, ok := c.dict[key]; ok {
 		node.Value = value
 		c.list.move(node)
@@ -67,7 +67,7 @@ func (c *Cache[K, V]) Get(key K) (V, bool) {
 	}
 }
 
-func (c *Cache[K, V]) Remove(key K) bool {
+func (c *Cache[K, V]) Del(key K) bool {
 	if node, ok := c.dict[key]; ok {
 		c.list.remove(node)
 		delete(c.dict, node.Key)
