@@ -40,7 +40,7 @@ func (c *Cache[K, V]) evict() {
 }
 
 func (c *Cache[K, V]) Len() int {
-	return len(c.dict)
+	return c.list.len
 }
 
 func (c *Cache[K, V]) Add(key K, value V) {
