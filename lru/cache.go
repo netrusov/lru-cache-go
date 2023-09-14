@@ -33,6 +33,10 @@ func New[K comparable, V any](size int) (*Cache[K, V], error) {
 	return cache, nil
 }
 
+func (c *Cache[K, V]) Cap() int {
+	return c.size
+}
+
 func (c *Cache[K, V]) Len() int {
 	return c.list.len
 }
@@ -49,7 +53,7 @@ func (c *Cache[K, V]) Put(key K, value V) {
 
 	node := &Node[K, V]{Key: key, Value: value}
 
-	if c.Len() == c.size {
+	if c.Len() == c.Cap() {
 		tail := c.list.head.prev
 
 		c.list.remove(tail)
