@@ -48,10 +48,9 @@ func (c *Cache[K, V]) Put(key K, value V) {
 	if node, ok := c.dict[key]; ok {
 		node.Value = value
 		c.list.move(node)
+
 		return
 	}
-
-	node := &Node[K, V]{Key: key, Value: value}
 
 	if c.Len() == c.Cap() {
 		tail := c.list.head.prev
@@ -59,6 +58,8 @@ func (c *Cache[K, V]) Put(key K, value V) {
 		c.list.remove(tail)
 		delete(c.dict, tail.Key)
 	}
+
+	node := &Node[K, V]{Key: key, Value: value}
 
 	c.list.insert(node)
 	c.dict[key] = node
@@ -83,7 +84,7 @@ func (c *Cache[K, V]) Del(key K) bool {
 
 	if node, ok := c.dict[key]; ok {
 		c.list.remove(node)
-		delete(c.dict, node.Key)
+		delete(c.dict, key)
 
 		return true
 	} else {

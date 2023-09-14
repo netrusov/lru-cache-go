@@ -12,19 +12,18 @@ type List[K comparable, V any] struct {
 }
 
 func (l *List[K, V]) insert(node *Node[K, V]) {
-	head := l.head
-	l.head = node
-
-	if head == nil {
+	if l.head == nil {
 		node.prev = node
 		node.next = node
 	} else {
-		node.prev = head.prev
-		node.next = head
+		node.prev = l.head.prev
+		node.next = l.head
 
 		node.prev.next = node
 		node.next.prev = node
 	}
+
+	l.head = node
 
 	l.len++
 }
