@@ -91,3 +91,23 @@ func (c *Cache[K, V]) Del(key K) bool {
 		return false
 	}
 }
+
+func (c *Cache[K, V]) GetOrPut(key K, value V) V {
+	if v, ok := c.Get(key); ok {
+		return v
+	} else {
+		c.Put(key, value)
+		return value
+	}
+}
+
+func (c *Cache[K, V]) GetOrPutFunc(key K, valueFunc func() V) V {
+	if v, ok := c.Get(key); ok {
+		return v
+	} else {
+		v := valueFunc()
+		c.Put(key, v)
+
+		return v
+	}
+}
