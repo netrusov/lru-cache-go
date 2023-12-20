@@ -92,6 +92,8 @@ func (c *Cache[K, V]) Del(key K) bool {
 	}
 }
 
+// the following functions are subject to race condition
+
 func (c *Cache[K, V]) GetOrPut(key K, value V) V {
 	if v, ok := c.Get(key); ok {
 		return v
