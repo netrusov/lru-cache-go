@@ -2,11 +2,6 @@ package lru
 
 import "sync"
 
-/*
-TODO:
-	- prove that concurrent access works properly
-*/
-
 type Cache[K comparable, V any] struct {
 	size int
 	dict map[K]*Node[K, V]
